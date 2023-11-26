@@ -74,6 +74,8 @@ class BoardData(object):
         self.currentDirection = 0
         self.currentShape = Shape()
         self.nextShape = Shape(random.randint(1, 7))
+        self.other_board = None
+
 
         self.shapeStat = [0] * 8
 
@@ -198,3 +200,5 @@ class BoardData(object):
 
 BOARD_DATA = BoardData()
 BOARD2_DATA = BoardData()
+BOARD_DATA.other_board = BOARD2_DATA
+BOARD2_DATA.other_board = BOARD_DATA
