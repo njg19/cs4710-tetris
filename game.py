@@ -96,58 +96,61 @@ class Tetris(QMainWindow):
         self.update()
 
     def timerEvent(self, event):
-        if event.timerId() == self.timer.timerId():
+        if BOARD_DATA.winner == None:
 
-            # Player 1
-            if TETRIS_AI and not self.nextMove:
-                self.nextMove = TETRIS_AI.nextMove()
-            if self.nextMove:
-                k = 0
-                while BOARD_DATA.currentDirection != self.nextMove[0] and k < 4:
-                    BOARD_DATA.rotateRight()
-                    k += 1
-                k = 0
-                while BOARD_DATA.currentX != self.nextMove[1] and k < 5:
-                    if BOARD_DATA.currentX > self.nextMove[1]:
-                        BOARD_DATA.moveLeft()
-                    elif BOARD_DATA.currentX < self.nextMove[1]:
-                        BOARD_DATA.moveRight()
-                    k += 1
-            lines = BOARD_DATA.moveDown()
-            if lines >= 1:
-                BOARD_DATA.sabotage(lines)
-            self.tboard.score += lines
-            if self.lastShape != BOARD_DATA.currentShape:
-                self.nextMove = None
-                self.lastShape = BOARD_DATA.currentShape
+            if event.timerId() == self.timer.timerId():
+                # Player 1
+                if TETRIS_AI and not self.nextMove:
+                    self.nextMove = TETRIS_AI.nextMove()
+                if self.nextMove:
+                    k = 0
+                    while BOARD_DATA.currentDirection != self.nextMove[0] and k < 4:
+                        BOARD_DATA.rotateRight()
+                        k += 1
+                    k = 0
+                    while BOARD_DATA.currentX != self.nextMove[1] and k < 5:
+                        if BOARD_DATA.currentX > self.nextMove[1]:
+                            BOARD_DATA.moveLeft()
+                        elif BOARD_DATA.currentX < self.nextMove[1]:
+                            BOARD_DATA.moveRight()
+                        k += 1
+                lines = BOARD_DATA.moveDown()
+                if lines >= 1:
+                    BOARD_DATA.sabotage(lines)
+                self.tboard.score += lines
+                if self.lastShape != BOARD_DATA.currentShape:
+                    self.nextMove = None
+                    self.lastShape = BOARD_DATA.currentShape
 
-            # Player 2
-            if TETRIS_AI and not self.nextMove2:
-                self.nextMove2 = TETRIS_AI.nextMove2()
-            if self.nextMove2:
-                k = 0
-                while BOARD2_DATA.currentDirection != self.nextMove2[0] and k < 4:
-                    BOARD2_DATA.rotateRight()
-                    k += 1
-                k = 0
-                while BOARD2_DATA.currentX != self.nextMove2[1] and k < 5:
-                    if BOARD2_DATA.currentX > self.nextMove2[1]:
-                        BOARD2_DATA.moveLeft()
-                    elif BOARD2_DATA.currentX < self.nextMove2[1]:
-                        BOARD2_DATA.moveRight()
-                    k += 1
-            lines = BOARD2_DATA.moveDown()
-            self.tboard2.score += lines
-            if lines >= 1:
-                BOARD2_DATA.sabotage(lines)
-            if self.lastShape2 != BOARD2_DATA.currentShape:
-                self.nextMove2 = None
-                self.lastShape2 = BOARD2_DATA.currentShape
+                # Player 2
+                if TETRIS_AI and not self.nextMove2:
+                    self.nextMove2 = TETRIS_AI.nextMove2()
+                if self.nextMove2:
+                    k = 0
+                    while BOARD2_DATA.currentDirection != self.nextMove2[0] and k < 4:
+                        BOARD2_DATA.rotateRight()
+                        k += 1
+                    k = 0
+                    while BOARD2_DATA.currentX != self.nextMove2[1] and k < 5:
+                        if BOARD2_DATA.currentX > self.nextMove2[1]:
+                            BOARD2_DATA.moveLeft()
+                        elif BOARD2_DATA.currentX < self.nextMove2[1]:
+                            BOARD2_DATA.moveRight()
+                        k += 1
+                lines = BOARD2_DATA.moveDown()
+                self.tboard2.score += lines
+                if lines >= 1:
+                    BOARD2_DATA.sabotage(lines)
+                if self.lastShape2 != BOARD2_DATA.currentShape:
+                    self.nextMove2 = None
+                    self.lastShape2 = BOARD2_DATA.currentShape
 
-            # Universal
-            self.updateWindow()
+                # Universal
+                self.updateWindow()
+            else:
+                super(Tetris, self).timerEvent(event)
         else:
-            super(Tetris, self).timerEvent(event)
+            print("Winner")
 
 def drawSquare(painter, x, y, val, s):
     colorTable = [0x000000, 0xCC6666, 0x66CC66, 0x6666CC,
@@ -253,7 +256,7 @@ class Board(QFrame):
         painter.drawLine(self.width(), 0, self.width(), self.height())
 
     def updateData(self):
-        self.msg2Statusbar.emit(str(self.score))
+        self.msg2Statusbar.emit(str(self.tboard.score) + " vs " + str(self.tboard2.score))
         self.update()
 
 
