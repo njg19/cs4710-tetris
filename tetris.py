@@ -9,6 +9,7 @@ class Shape(object):
     shapeO = 5
     shapeS = 6
     shapeZ = 7
+    shapeSABOTAGE = 8
 
     shapeCoord = (
         ((0, 0), (0, 0), (0, 0), (0, 0)),
@@ -130,8 +131,8 @@ class BoardData(object):
     
     def moveUp(self):
         lines = 0
-        if self.tryMoveCurrent(self.currentDirection, self.currentX, self.currentY + 1):
-            self.currentY += 1
+        if self.tryMoveCurrent(self.currentDirection, self.currentX, self.currentY - 1):
+            self.currentY -= 1
         else:
             self.mergePiece()
             lines = self.removeFullLines()
@@ -180,6 +181,21 @@ class BoardData(object):
         if lines > 0:
             self.backBoard = newBackBoard
         return lines
+    
+    def addFullLines(self):
+        # Copy from the top up
+        newBackBoard = [0] * BoardData.width * BoardData.height
+        for y in range(1, BoardData.height, 1):
+            for x in range(BoardData.width):
+                newY = y - 1
+                newBackBoard[x + newY * BoardData.width] = self.other_board.backBoard[x + y * BoardData.width]
+        # Add the new line
+        for x in range(BoardData.width):
+            newBackBoard[x + (BoardData.height - 1) * BoardData.width] = 8
+        # Random empty square on new line
+        random_x = random.randint(0, 9)
+        newBackBoard[random_x + (BoardData.height - 1) * BoardData.width] = 0
+        self.other_board.backBoard = newBackBoard
 
     def mergePiece(self):
         for x, y in self.currentShape.getCoords(self.currentDirection, self.currentX, self.currentY):
@@ -196,6 +212,10 @@ class BoardData(object):
         self.currentDirection = 0
         self.currentShape = Shape()
         self.backBoard = [0] * BoardData.width * BoardData.height
+
+    def sabotage(self, lines):
+        self.addFullLines()
+        return lines
 
 
 BOARD_DATA = BoardData()

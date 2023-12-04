@@ -73,7 +73,7 @@ class Tetris(QMainWindow):
         self.isStarted = True
         self.tboard.score = 0
         BOARD_DATA.clear()
-        self.tboard.msg2Statusbar.emit(str(self.tboard.score))
+        #self.tboard.msg2Statusbar.emit(str(self.tboard.score))
         BOARD_DATA.createNewPiece()
 
         # Player 2
@@ -82,7 +82,7 @@ class Tetris(QMainWindow):
         self.isStarted2 = True
         self.tboard2.score = 0
         BOARD2_DATA.clear()
-        self.tboard2.msg2Statusbar.emit(str(self.tboard2.score))
+        self.tboard.msg2Statusbar.emit(str(self.tboard.score) + " vs " + str(self.tboard2.score))
         BOARD2_DATA.createNewPiece()
 
         # Universal
@@ -114,6 +114,8 @@ class Tetris(QMainWindow):
                         BOARD_DATA.moveRight()
                     k += 1
             lines = BOARD_DATA.moveDown()
+            if lines >= 1:
+                BOARD_DATA.sabotage(lines)
             self.tboard.score += lines
             if self.lastShape != BOARD_DATA.currentShape:
                 self.nextMove = None
@@ -136,6 +138,8 @@ class Tetris(QMainWindow):
                     k += 1
             lines = BOARD2_DATA.moveDown()
             self.tboard2.score += lines
+            if lines >= 1:
+                BOARD2_DATA.sabotage(lines)
             if self.lastShape2 != BOARD2_DATA.currentShape:
                 self.nextMove2 = None
                 self.lastShape2 = BOARD2_DATA.currentShape
@@ -147,7 +151,7 @@ class Tetris(QMainWindow):
 
 def drawSquare(painter, x, y, val, s):
     colorTable = [0x000000, 0xCC6666, 0x66CC66, 0x6666CC,
-                  0xCCCC66, 0xCC66CC, 0x66CCCC, 0xDAAA00]
+                  0xCCCC66, 0xCC66CC, 0x66CCCC, 0xDAAA00, 0x555555]
 
     if val == 0:
         return
