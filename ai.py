@@ -42,7 +42,6 @@ class TetrisAI(object):
                         score = self.calculateScore(np.copy(board), d1, x1, dropDist)
                         if not strategy or strategy[2] < score:
                             strategy = (d0, x0, score)
-        print("===", datetime.now() - t1)
         return strategy
     
     def nextMove2(self):
