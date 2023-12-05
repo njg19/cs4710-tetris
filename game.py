@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, QBasicTimer, pyqtSignal
 from PyQt5.QtGui import QPainter, QColor, QPen
 
 from tetris import BOARD_DATA, BOARD2_DATA, Shape
-from ai import TETRIS_AI
+from ai import Agent1, Agent2
 
 class Tetris(QMainWindow):
     def __init__(self):
@@ -100,8 +100,8 @@ class Tetris(QMainWindow):
 
             if event.timerId() == self.timer.timerId():
                 # Player 1
-                if TETRIS_AI and not self.nextMove:
-                    self.nextMove = TETRIS_AI.nextMove()
+                if Agent1 and not self.nextMove:
+                    self.nextMove = Agent1.nextMove()
                 if self.nextMove:
                     k = 0
                     while BOARD_DATA.currentDirection != self.nextMove[0] and k < 4:
@@ -123,8 +123,8 @@ class Tetris(QMainWindow):
                     self.lastShape = BOARD_DATA.currentShape
 
                 # Player 2
-                if TETRIS_AI and not self.nextMove2:
-                    self.nextMove2 = TETRIS_AI.nextMove2()
+                if Agent2 and not self.nextMove2:
+                    self.nextMove2 = Agent2.nextMove2()
                 if self.nextMove2:
                     k = 0
                     while BOARD2_DATA.currentDirection != self.nextMove2[0] and k < 4:
