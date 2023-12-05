@@ -256,7 +256,7 @@ class Board(QFrame):
         painter.drawLine(self.width(), 0, self.width(), self.height())
 
     def updateData(self):
-        self.msg2Statusbar.emit(str(self.tboard.score) + " vs " + str(self.tboard2.score))
+        # self.msg2Statusbar.emit()
         self.update()
 
 
