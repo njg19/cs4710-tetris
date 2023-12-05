@@ -15,7 +15,6 @@ class TetrisAI(object):
         _, _, minY, _ = BOARD_DATA.nextShape.getBoundingOffsets(0)
         nextY = -minY
 
-        # print("=======")
         strategy = None
         if BOARD_DATA.currentShape.shape in (Shape.shapeI, Shape.shapeZ, Shape.shapeS):
             d0Range = (0, 1)

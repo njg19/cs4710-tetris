@@ -76,7 +76,8 @@ class BoardData(object):
         self.currentShape = Shape()
         self.nextShape = Shape(random.randint(1, 7))
         self.other_board = None
-
+        self.winner = None
+        self.down = 0
 
         self.shapeStat = [0] * 8
 
@@ -123,20 +124,14 @@ class BoardData(object):
         lines = 0
         if self.tryMoveCurrent(self.currentDirection, self.currentX, self.currentY + 1):
             self.currentY += 1
+            self.down = 0
         else:
             self.mergePiece()
             lines = self.removeFullLines()
             self.createNewPiece()
-        return lines
-    
-    def moveUp(self):
-        lines = 0
-        if self.tryMoveCurrent(self.currentDirection, self.currentX, self.currentY - 1):
-            self.currentY -= 1
-        else:
-            self.mergePiece()
-            lines = self.removeFullLines()
-            self.createNewPiece()
+            self.down += 1
+        if self.down >= 2:
+            self.winner = "winner"
         return lines
 
     def dropDown(self):
@@ -166,18 +161,20 @@ class BoardData(object):
             self.currentDirection %= 4
 
     def removeFullLines(self):
-        # TODO: Make this interact with other players board
+        # Dark gray pieces from sabotage cannot add to this count
         newBackBoard = [0] * BoardData.width * BoardData.height
         newY = BoardData.height - 1
         lines = 0
         for y in range(BoardData.height - 1, -1, -1):
             blockCount = sum([1 if self.backBoard[x + y * BoardData.width] > 0 else 0 for x in range(BoardData.width)])
+            sabotageBlockCount = sum([1 if self.backBoard[x + y * BoardData.width] == 8 else 0 for x in range(BoardData.width)])
             if blockCount < BoardData.width:
                 for x in range(BoardData.width):
                     newBackBoard[x + newY * BoardData.width] = self.backBoard[x + y * BoardData.width]
                 newY -= 1
             else:
-                lines += 1
+                if sabotageBlockCount == 0:
+                    lines += 1
         if lines > 0:
             self.backBoard = newBackBoard
         return lines
