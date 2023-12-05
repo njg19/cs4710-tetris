@@ -1,3 +1,8 @@
+# This has been modified to include 2 different agents.
+# Agent1 will prioritize patience as defined by their score function
+# Agent2 will play more aggressive as defined by their score function
+# 
+
 from tetris import BOARD_DATA, BOARD2_DATA, Shape
 import math
 from datetime import datetime
@@ -6,14 +11,8 @@ import numpy as np
 class TetrisAI(object):
 
     def nextMove(self):
-        t1 = datetime.now()
         if BOARD_DATA.currentShape == Shape.shapeNone:
             return None
-
-        currentDirection = BOARD_DATA.currentDirection
-        currentY = BOARD_DATA.currentY
-        _, _, minY, _ = BOARD_DATA.nextShape.getBoundingOffsets(0)
-        nextY = -minY
 
         strategy = None
         if BOARD_DATA.currentShape.shape in (Shape.shapeI, Shape.shapeZ, Shape.shapeS):
@@ -44,14 +43,8 @@ class TetrisAI(object):
         return strategy
     
     def nextMove2(self):
-        t1 = datetime.now()
         if BOARD2_DATA.currentShape == Shape.shapeNone:
             return None
-
-        currentDirection = BOARD2_DATA.currentDirection
-        currentY = BOARD2_DATA.currentY
-        _, _, minY, _ = BOARD2_DATA.nextShape.getBoundingOffsets(0)
-        nextY = -minY
 
         strategy = None
         if BOARD2_DATA.currentShape.shape in (Shape.shapeI, Shape.shapeZ, Shape.shapeS):
@@ -79,7 +72,6 @@ class TetrisAI(object):
                         score = self.calculateScore2(np.copy(board), d1, x1, dropDist)
                         if not strategy or strategy[2] < score:
                             strategy = (d0, x0, score)
-        print("===", datetime.now() - t1)
         return strategy
 
     def calcNextDropDist(self, data, d0, xRange):
@@ -129,7 +121,6 @@ class TetrisAI(object):
             yy -= 1
             if yy < dy:
                 dy = yy
-        # print("dropDown: shape {0}, direction {1}, x0 {2}, dy {3}".format(shape.shape, direction, x0, dy))
         self.dropDownByDist(data, shape, direction, x0, dy)
 
     def dropDown2(self, data, shape, direction, x0):
@@ -141,7 +132,6 @@ class TetrisAI(object):
             yy -= 1
             if yy < dy:
                 dy = yy
-        # print("dropDown: shape {0}, direction {1}, x0 {2}, dy {3}".format(shape.shape, direction, x0, dy))
         self.dropDownByDist(data, shape, direction, x0, dy)
 
     def dropDownByDist(self, data, shape, direction, x0, dist):
@@ -149,15 +139,11 @@ class TetrisAI(object):
             data[y + dist, x] = shape.shape
 
     def calculateScore(self, step1Board, d1, x1, dropDist):
-        # print("calculateScore")
-        t1 = datetime.now()
         width = BOARD_DATA.width
         height = BOARD_DATA.height
 
         self.dropDownByDist(step1Board, BOARD_DATA.nextShape, d1, x1, dropDist[x1])
-        # print(datetime.now() - t1)
 
-        # Term 1: lines to be removed
         fullLines, nearFullLines = 0, 0
         roofY = [0] * width
         holeCandidates = [0] * width
