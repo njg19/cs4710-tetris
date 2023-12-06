@@ -26,6 +26,8 @@ class Tetris_AI_1(object):
         self.alpha = 0.2
         self.gamma = 0.8
         self.epsilon = 0.025
+        self.qCount = 0
+        self.random = 0
 
     def getQValue(self, state):
         if state in self.q_values:
@@ -45,9 +47,19 @@ class Tetris_AI_1(object):
     def nextMove(self):
         # Epsilon greedy
         strategies, q_strategy = self.getPossibleStrategies()
+        board = np.array(BOARD_DATA.getData()).reshape((BOARD_DATA.height, BOARD_DATA.width))
+        non_zero_count = np.count_nonzero(board)  # Count of non-zero elements
+        non_zero_percentage = (non_zero_count / board.size) * 100
+
+        if non_zero_percentage > 40
+            self.qCount += 1
+            return q_strategy
+        
         if random.random() < 1 - self.epsilon:
+            self.qCount += 1
             return q_strategy
         else:
+            self.random += 1
             return random.choice(strategies)
         #return q_strategy
         
@@ -58,6 +70,7 @@ class Tetris_AI_1(object):
         q = self.getQValue(state) * (1 - self.alpha)
         m = self.alpha * ( reward + self.computeValueFromQValues(self.cleanState(nextState)) * self.gamma )
         self.q_values[state] = q + m
+        print(str(len(self.q_values)))
 
     def getPossibleStates(self, state):
         states = []
