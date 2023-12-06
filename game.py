@@ -1,10 +1,11 @@
 import sys, random
+import numpy as np
 from PyQt5.QtWidgets import QMainWindow, QFrame, QDesktopWidget, QApplication, QHBoxLayout, QLabel
 from PyQt5.QtCore import Qt, QBasicTimer, pyqtSignal
 from PyQt5.QtGui import QPainter, QColor, QPen
 
 from tetris import BOARD_DATA, BOARD2_DATA, Shape
-from ai import TETRIS_AI
+from ai import Agent1, Agent2
 
 class Tetris(QMainWindow):
     def __init__(self):
@@ -15,6 +16,9 @@ class Tetris(QMainWindow):
         self.isPaused = False
         self.nextMove = None
         self.lastShape = Shape.shapeNone
+        self.curState = None
+        self.nextState = None
+        self.sabotagedLines = 0
 
         # Player 2
         self.isStarted2 = False
@@ -100,8 +104,9 @@ class Tetris(QMainWindow):
 
             if event.timerId() == self.timer.timerId():
                 # Player 1
-                if TETRIS_AI and not self.nextMove:
-                    self.nextMove = TETRIS_AI.nextMove()
+                if Agent1 and not self.nextMove:
+                    self.nextMove = Agent1.nextMove()
+                    self.curState = np.array(BOARD_DATA.getData()).reshape((BOARD_DATA.height, BOARD_DATA.width))
                 if self.nextMove:
                     k = 0
                     while BOARD_DATA.currentDirection != self.nextMove[0] and k < 4:
@@ -115,16 +120,24 @@ class Tetris(QMainWindow):
                             BOARD_DATA.moveRight()
                         k += 1
                 lines = BOARD_DATA.moveDown()
-                if lines >= 1:
-                    BOARD_DATA.sabotage(lines)
+                reward = 0
+                if lines >= 2:
+                    self.sabotagedLines = BOARD_DATA.sabotage(lines)
+                else:
+                    self.sabotagedLines = 0
+                reward += (self.sabotagedLines * 2) + lines
+
+
                 self.tboard.score += lines
                 if self.lastShape != BOARD_DATA.currentShape:
                     self.nextMove = None
                     self.lastShape = BOARD_DATA.currentShape
-
+                    # Q Learning
+                    self.nextState = np.array(BOARD_DATA.getData()).reshape((BOARD_DATA.height, BOARD_DATA.width))
+                    Agent1.update(self.curState, self.nextState, reward)
                 # Player 2
-                if TETRIS_AI and not self.nextMove2:
-                    self.nextMove2 = TETRIS_AI.nextMove2()
+                if Agent2 and not self.nextMove2:
+                    self.nextMove2 = Agent2.nextMove2()
                 if self.nextMove2:
                     k = 0
                     while BOARD2_DATA.currentDirection != self.nextMove2[0] and k < 4:
