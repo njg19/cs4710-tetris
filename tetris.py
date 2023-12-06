@@ -122,25 +122,26 @@ class BoardData(object):
 
     def moveDown(self):
         lines = 0
+        check = True
         if self.tryMoveCurrent(self.currentDirection, self.currentX, self.currentY + 1):
             self.currentY += 1
             self.down = 0
         else:
             self.mergePiece()
             lines = self.removeFullLines()
-            self.createNewPiece()
+            check = self.createNewPiece()
             self.down += 1
         if self.down >= 2:
             self.winner = "winner"
-        return lines
+        return lines, check
 
     def dropDown(self):
         while self.tryMoveCurrent(self.currentDirection, self.currentX, self.currentY + 1):
             self.currentY += 1
         self.mergePiece()
         lines = self.removeFullLines()
-        self.createNewPiece()
-        return lines
+        check = self.createNewPiece()
+        return lines, check
 
     def moveLeft(self):
         if self.tryMoveCurrent(self.currentDirection, self.currentX - 1, self.currentY):
@@ -222,7 +223,6 @@ class BoardData(object):
 
     def sabotage(self, lines):
         return self.addFullLines(lines)
-
 
 BOARD_DATA = BoardData()
 BOARD2_DATA = BoardData()
