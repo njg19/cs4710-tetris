@@ -45,19 +45,21 @@ class Tetris_AI_1(object):
     def nextMove(self):
         # Epsilon greedy
         strategies, q_strategy = self.getPossibleStrategies()
-        if random.random() < 1 - self.epsilon:
-            return q_strategy
-        else:
-            return random.choice(strategies)
+        # if random.random() < 1 - self.epsilon:
+        #     return q_strategy
+        # else:
+        #     return random.choice(strategies)
+        return q_strategy
         
     def update(self, state, nextState, reward):
+        state = self.cleanState(state)
         if state not in self.q_values:
-            self.q_values[(self.cleanState(state), 0)] = 0.0
+            self.q_values[state] = 0.0
         q = self.getQValue(state) * (1 - self.alpha)
-        m = self.alpha * ( reward + self.computeValueFromQValues(self.cleanState(nextState)) * self.discount )
+        m = self.alpha * ( reward + self.computeValueFromQValues(self.cleanState(nextState)) * self.gamma )
         self.q_values[state] = q + m
 
-    def getPossibleStates(self):
+    def getPossibleStates(self, state):
         states = []
         d0Range, _ = self.getDRanges()
         for d0 in d0Range:
@@ -85,7 +87,6 @@ class Tetris_AI_1(object):
                         q = self.getQValue(self.cleanState( np.array(BOARD_DATA.getData()).reshape((BOARD_DATA.height, BOARD_DATA.width))))
                         q_prime = self.getQValue(self.cleanState(board))
                         score = q + self.alpha * (r + self.gamma * q_prime)
-                        print(score)
                         strategy = (d0, x0, score)
                         strategies.append(strategy)
                         if not optimal_strategy or optimal_strategy[2] < score:

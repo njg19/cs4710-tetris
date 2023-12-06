@@ -181,7 +181,7 @@ class BoardData(object):
     
     def addFullLines(self, lines):
         if lines <= 1:
-            return
+            return 0
         else:
             linesToAdd = 1
             if lines == 3:
@@ -202,6 +202,7 @@ class BoardData(object):
                 random_x = random.randint(0, 9)
                 newBackBoard[random_x + (BoardData.height - 1) * BoardData.width] = 0
                 self.other_board.backBoard = newBackBoard
+            return linesToAdd
 
     def mergePiece(self):
         for x, y in self.currentShape.getCoords(self.currentDirection, self.currentX, self.currentY):
@@ -220,7 +221,7 @@ class BoardData(object):
         self.backBoard = [0] * BoardData.width * BoardData.height
 
     def sabotage(self, lines):
-        self.addFullLines(lines)
+        return self.addFullLines(lines)
 
 
 BOARD_DATA = BoardData()
