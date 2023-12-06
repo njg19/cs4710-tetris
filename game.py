@@ -120,16 +120,21 @@ class Tetris(QMainWindow):
                             BOARD_DATA.moveRight()
                         k += 1
                 lines = BOARD_DATA.moveDown()
+                reward = 0
                 if lines >= 2:
                     self.sabotagedLines = BOARD_DATA.sabotage(lines)
                 else:
                     self.sabotagedLines = 0
+                reward += (self.sabotagedLines * 2) + lines
+
+
                 self.tboard.score += lines
                 if self.lastShape != BOARD_DATA.currentShape:
                     self.nextMove = None
                     self.lastShape = BOARD_DATA.currentShape
+                    # Q Learning
                     self.nextState = np.array(BOARD_DATA.getData()).reshape((BOARD_DATA.height, BOARD_DATA.width))
-                    Agent1.update(self.curState, self.nextState, self.sabotagedLines)
+                    Agent1.update(self.curState, self.nextState, reward)
                 # Player 2
                 if Agent2 and not self.nextMove2:
                     self.nextMove2 = Agent2.nextMove2()
