@@ -15,6 +15,7 @@ from tetris import BOARD_DATA, BOARD2_DATA, Shape
 import math
 from datetime import datetime
 import numpy as np
+import random
 
 # Agent 1
 
@@ -24,30 +25,73 @@ class Tetris_AI_1(object):
         self.q_values = {}
         self.alpha = 0.2
         self.gamma = 0.8
+        self.epsilon = 0.025
 
     def getQValue(self, state):
         if state in self.q_values:
             return self.q_values[state]
         return 0.0
     
-    def getReward(self, strategy, board, d1, x1, dropDist):
-        if strategy == 1: # patient
-            return self.calculateScore(board, d1, x1, dropDist)
-        return self.calculateScore2(board, d1, x1, dropDist) # agressive
+    def getReward(self, state):
+        return self.calculateScore(state)
     
-    def computeValueFromQValues(self):
+    def computeValueFromQValues(self, state):
         answer = -999999999
-        for states in self.getPossibleStates():
-            q2 = self.getQValue(state, act)
+        for newState in self.getPossibleStates(state):
+            q2 = self.getQValue(newState)
             answer = max(q2, answer)
         return answer
     
-    def getPossibleStates(self):
+    def nextMove(self):
+        # Epsilon greedy
+        strategies, q_strategy = self.getPossibleStrategies()
+        if random.random() < 1 - self.epsilon:
+            return q_strategy
+        else:
+            return random.choice(strategies)
+        
+    def update(self, state, nextState, reward):
+        if state not in self.q_values:
+            self.q_values[(self.cleanState(state), 0)] = 0.0
+        q = self.getQValue(state) * (1 - self.alpha)
+        m = self.alpha * ( reward + self.computeValueFromQValues(self.cleanState(nextState)) * self.discount )
+        self.q_values[state] = q + m
 
-        return "ok"
+    def getPossibleStates(self):
+        states = []
+        d0Range, _ = self.getDRanges()
+        for d0 in d0Range:
+            minX, maxX, _, _ = BOARD_DATA.currentShape.getBoundingOffsets(d0)
+            for x0 in range(-minX, BOARD_DATA.width - maxX):
+                board = self.calcStep1Board(d0, x0)
+                states.append(self.cleanState(board))
+        return states
+    
+    def getPossibleStrategies(self):
+        # Greedy Q Value
+        strategies = []
+        optimal_strategy = None
+        d0Range, d1Range = self.getDRanges()
+        for d0 in d0Range:
+            minX, maxX, _, _ = BOARD_DATA.currentShape.getBoundingOffsets(d0)
+            for x0 in range(-minX, BOARD_DATA.width - maxX):
+                board = self.calcStep1Board(d0, x0)
+                for d1 in d1Range:
+                    minX, maxX, _, _ = BOARD_DATA.nextShape.getBoundingOffsets(d1)
+                    dropDist = self.calcNextDropDist(board, d1, range(-minX, BOARD_DATA.width - maxX))
+                    for x1 in range(-minX, BOARD_DATA.width - maxX):
+                        # Q Score calculations here
+                        r = self.calculateScore(np.copy(board), d1, x1, dropDist)
+                        q = self.getQValue(self.cleanState( np.array(BOARD_DATA.getData()).reshape((BOARD_DATA.height, BOARD_DATA.width))))
+                        q_prime = self.getQValue(self.cleanState(board))
+                        score = q + self.alpha * (r + self.gamma * q_prime)
+                        strategy = (d0, x0, score)
+                        strategies.append(strategy)
+                        if not optimal_strategy or optimal_strategy[2] < score:
+                            optimal_strategy = strategy
+        return strategies, optimal_strategy
     
     def getDRanges(self):
-        strategy = None
         if BOARD_DATA.currentShape.shape in (Shape.shapeI, Shape.shapeZ, Shape.shapeS):
             d0Range = (0, 1)
         elif BOARD_DATA.currentShape.shape == Shape.shapeO:
@@ -62,38 +106,6 @@ class Tetris_AI_1(object):
         else:
             d1Range = (0, 1, 2, 3)
         return d0Range, d1Range
-    
-    def nextMove(self):
-        if BOARD_DATA.currentShape == Shape.shapeNone:
-            return None
-
-        strategy = None
-        if BOARD_DATA.currentShape.shape in (Shape.shapeI, Shape.shapeZ, Shape.shapeS):
-            d0Range = (0, 1)
-        elif BOARD_DATA.currentShape.shape == Shape.shapeO:
-            d0Range = (0,)
-        else:
-            d0Range = (0, 1, 2, 3)
-
-        if BOARD_DATA.nextShape.shape in (Shape.shapeI, Shape.shapeZ, Shape.shapeS):
-            d1Range = (0, 1)
-        elif BOARD_DATA.nextShape.shape == Shape.shapeO:
-            d1Range = (0,)
-        else:
-            d1Range = (0, 1, 2, 3)
-
-        for d0 in d0Range:
-            minX, maxX, _, _ = BOARD_DATA.currentShape.getBoundingOffsets(d0)
-            for x0 in range(-minX, BOARD_DATA.width - maxX):
-                board = self.calcStep1Board(d0, x0)
-                for d1 in d1Range:
-                    minX, maxX, _, _ = BOARD_DATA.nextShape.getBoundingOffsets(d1)
-                    dropDist = self.calcNextDropDist(board, d1, range(-minX, BOARD_DATA.width - maxX))
-                    for x1 in range(-minX, BOARD_DATA.width - maxX):
-                        score = self.calculateScore(np.copy(board), d1, x1, dropDist)
-                        if not strategy or strategy[2] < score:
-                            strategy = (d0, x0, score)
-        return strategy
 
     def calcNextDropDist(self, data, d0, xRange):
         res = {}
@@ -173,6 +185,16 @@ class Tetris_AI_1(object):
         score = fullLines * 1.8 - vHoles * 1.0 - vBlocks * 0.5 - maxHeight ** 1.5 * 0.02 \
             - stdY * 0.0 - stdDY * 0.01 - absDy * 0.2 - maxDy * 0.3
         return score
+    
+    ######################
+    #       Helpers      #
+    ######################
+    
+    def cleanState(self, board):
+        # Convert all non-zero elements in the board to 1
+        board[board != 0] = 1
+        tuple_board = tuple(map(tuple, board))
+        return tuple_board
     
 # Agent 2
     
