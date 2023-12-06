@@ -85,6 +85,7 @@ class Tetris_AI_1(object):
                         q = self.getQValue(self.cleanState( np.array(BOARD_DATA.getData()).reshape((BOARD_DATA.height, BOARD_DATA.width))))
                         q_prime = self.getQValue(self.cleanState(board))
                         score = q + self.alpha * (r + self.gamma * q_prime)
+                        print(score)
                         strategy = (d0, x0, score)
                         strategies.append(strategy)
                         if not optimal_strategy or optimal_strategy[2] < score:
