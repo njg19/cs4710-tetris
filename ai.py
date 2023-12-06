@@ -1,7 +1,9 @@
 ### Simple ai approach -> Same pieces separate strategy
 # simple ai simply picks score maximizing -> different scores like below
 # Agent1 will prioritize patience as defined by their score function
+    # Set up filling more lines at once
 # Agent2 will play more aggressive as defined by their score function
+    # If it can fill a line, do it
 
 ### QLearners -> Separate pieces same strategy
 # All values in the board are converted to 1 and this represents state
@@ -20,8 +22,8 @@ class Tetris_AI_1(object):
 
     def __init__(self, **args):
         self.q_values = {}
-        self.alpha = 0.1
-        self.gamma = 0.1
+        self.alpha = 0.2
+        self.gamma = 0.8
 
     def getQValue(self, state):
         if state in self.q_values:
@@ -32,6 +34,34 @@ class Tetris_AI_1(object):
         if strategy == 1: # patient
             return self.calculateScore(board, d1, x1, dropDist)
         return self.calculateScore2(board, d1, x1, dropDist) # agressive
+    
+    def computeValueFromQValues(self):
+        answer = -999999999
+        for states in self.getPossibleStates():
+            q2 = self.getQValue(state, act)
+            answer = max(q2, answer)
+        return answer
+    
+    def getPossibleStates(self):
+
+        return "ok"
+    
+    def getDRanges(self):
+        strategy = None
+        if BOARD_DATA.currentShape.shape in (Shape.shapeI, Shape.shapeZ, Shape.shapeS):
+            d0Range = (0, 1)
+        elif BOARD_DATA.currentShape.shape == Shape.shapeO:
+            d0Range = (0,)
+        else:
+            d0Range = (0, 1, 2, 3)
+
+        if BOARD_DATA.nextShape.shape in (Shape.shapeI, Shape.shapeZ, Shape.shapeS):
+            d1Range = (0, 1)
+        elif BOARD_DATA.nextShape.shape == Shape.shapeO:
+            d1Range = (0,)
+        else:
+            d1Range = (0, 1, 2, 3)
+        return d0Range, d1Range
     
     def nextMove(self):
         if BOARD_DATA.currentShape == Shape.shapeNone:
