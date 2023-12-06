@@ -51,7 +51,7 @@ class Tetris_AI_1(object):
         non_zero_count = np.count_nonzero(board)  # Count of non-zero elements
         non_zero_percentage = (non_zero_count / board.size) * 100
 
-        if non_zero_percentage > 40
+        if non_zero_percentage > 40:
             self.qCount += 1
             return q_strategy
         
@@ -70,7 +70,6 @@ class Tetris_AI_1(object):
         q = self.getQValue(state) * (1 - self.alpha)
         m = self.alpha * ( reward + self.computeValueFromQValues(self.cleanState(nextState)) * self.gamma )
         self.q_values[state] = q + m
-        print(str(len(self.q_values)))
 
     def getPossibleStates(self, state):
         states = []
