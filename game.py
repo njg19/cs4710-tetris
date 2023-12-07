@@ -126,7 +126,7 @@ class Tetris(QMainWindow):
                 print("GAME " + str(self.gameCount) + ": P1 - " + str(self.p1wins) + " vs " "P2 - " + str(self.p2wins))
                 self.start()
 
-                if self.gameCount == 20:
+                if self.gameCount == 100:
                     self.timer.stop()
                     print("QLearner learned " + str(len(Agent1.q_values)) + " states")
                     print("Explored = " + str(Agent1.random))
@@ -168,7 +168,7 @@ class Tetris(QMainWindow):
                 print("GAME " + str(self.gameCount) + ": P1 - " + str(self.p1wins) + " vs " "P2 - " + str(self.p2wins))
                 self.start()
 
-                if self.gameCount == 20:
+                if self.gameCount == 100:
                     self.timer.stop()
                     print("QLearner learned " + str(len(Agent1.q_values)) + " states")
                     print("Explored = " + str(Agent1.random))
