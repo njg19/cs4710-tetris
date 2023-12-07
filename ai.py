@@ -47,13 +47,6 @@ class Tetris_AI_1(object):
     def nextMove(self):
         # Epsilon greedy
         strategies, q_strategy = self.getPossibleStrategies()
-        board = np.array(BOARD_DATA.getData()).reshape((BOARD_DATA.height, BOARD_DATA.width))
-        non_zero_count = np.count_nonzero(board)  # Count of non-zero elements
-        non_zero_percentage = (non_zero_count / board.size) * 100
-
-        if non_zero_percentage > 40:
-            self.qCount += 1
-            return q_strategy
         
         if random.random() < 1 - self.epsilon:
             self.qCount += 1
