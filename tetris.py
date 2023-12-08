@@ -122,25 +122,26 @@ class BoardData(object):
 
     def moveDown(self):
         lines = 0
+        check = True
         if self.tryMoveCurrent(self.currentDirection, self.currentX, self.currentY + 1):
             self.currentY += 1
             self.down = 0
         else:
             self.mergePiece()
             lines = self.removeFullLines()
-            self.createNewPiece()
+            check = self.createNewPiece()
             self.down += 1
         if self.down >= 2:
             self.winner = "winner"
-        return lines
+        return lines, check
 
     def dropDown(self):
         while self.tryMoveCurrent(self.currentDirection, self.currentX, self.currentY + 1):
             self.currentY += 1
         self.mergePiece()
         lines = self.removeFullLines()
-        self.createNewPiece()
-        return lines
+        check = self.createNewPiece()
+        return lines, check
 
     def moveLeft(self):
         if self.tryMoveCurrent(self.currentDirection, self.currentX - 1, self.currentY):
@@ -179,20 +180,30 @@ class BoardData(object):
             self.backBoard = newBackBoard
         return lines
     
-    def addFullLines(self):
-        # Copy from the top up
-        newBackBoard = [0] * BoardData.width * BoardData.height
-        for y in range(1, BoardData.height, 1):
-            for x in range(BoardData.width):
-                newY = y - 1
-                newBackBoard[x + newY * BoardData.width] = self.other_board.backBoard[x + y * BoardData.width]
-        # Add the new line
-        for x in range(BoardData.width):
-            newBackBoard[x + (BoardData.height - 1) * BoardData.width] = 8
-        # Random empty square on new line
-        random_x = random.randint(0, 9)
-        newBackBoard[random_x + (BoardData.height - 1) * BoardData.width] = 0
-        self.other_board.backBoard = newBackBoard
+    def addFullLines(self, lines):
+        if lines <= 1:
+            return 0
+        else:
+            linesToAdd = 1
+            if lines == 3:
+                linesToAdd = 2
+            elif lines == 4: # a tetris
+                linesToAdd = 4
+            for i in range(linesToAdd):
+                # Copy from the top up
+                newBackBoard = [0] * BoardData.width * BoardData.height
+                for y in range(1, BoardData.height, 1):
+                    for x in range(BoardData.width):
+                        newY = y - 1
+                        newBackBoard[x + newY * BoardData.width] = self.other_board.backBoard[x + y * BoardData.width]
+                # Add the new line
+                for x in range(BoardData.width):
+                    newBackBoard[x + (BoardData.height - 1) * BoardData.width] = 8
+                # Random empty square on new line
+                random_x = random.randint(0, 9)
+                newBackBoard[random_x + (BoardData.height - 1) * BoardData.width] = 0
+                self.other_board.backBoard = newBackBoard
+            return linesToAdd
 
     def mergePiece(self):
         for x, y in self.currentShape.getCoords(self.currentDirection, self.currentX, self.currentY):
@@ -211,9 +222,7 @@ class BoardData(object):
         self.backBoard = [0] * BoardData.width * BoardData.height
 
     def sabotage(self, lines):
-        self.addFullLines()
-        return lines
-
+        return self.addFullLines(lines)
 
 BOARD_DATA = BoardData()
 BOARD2_DATA = BoardData()
