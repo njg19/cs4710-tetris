@@ -29,6 +29,7 @@ class Tetris(QMainWindow):
         self.p2wins = 0
 
         self.gameCount = 0
+        self.episodes = 20
         self.initUI()
 
     def initUI(self):
@@ -99,7 +100,7 @@ class Tetris(QMainWindow):
         if event.timerId() == self.timer.timerId():
             # Player 1
             if Agent1 and not self.nextMove:
-                self.nextMove = Agent1.nextMove(self.gameCount)
+                self.nextMove = Agent1.nextMove(self.gameCount, self.episodes)
                 self.curState = np.array(BOARD_DATA.getData()).reshape((BOARD_DATA.height, BOARD_DATA.width))
             if self.nextMove:
                 k = 0
@@ -123,10 +124,10 @@ class Tetris(QMainWindow):
             if not check:
                 self.gameCount += 1
                 self.p2wins += 1
-                print("GAME " + str(self.gameCount - 125) + ": P1 - " + str(self.p1wins) + " vs " "P2 - " + str(self.p2wins))
+                print("GAME " + str(self.gameCount) + ": P1 - " + str(self.p1wins) + " vs " "P2 - " + str(self.p2wins))
                 self.start()
 
-                if self.gameCount == 145:
+                if self.gameCount == self.episodes + 20:
                     self.timer.stop()
                     print("QLearner learned " + str(len(Agent1.q_values)) + " states")
                     print("Explored = " + str(Agent1.random))
@@ -165,10 +166,10 @@ class Tetris(QMainWindow):
             if not check:
                 self.gameCount += 1
                 self.p1wins += 1
-                print("GAME " + str(self.gameCount - 125) + ": P1 - " + str(self.p1wins) + " vs " "P2 - " + str(self.p2wins))
+                print("GAME " + str(self.gameCount) + ": P1 - " + str(self.p1wins) + " vs " "P2 - " + str(self.p2wins))
                 self.start()
 
-                if self.gameCount == 145:
+                if self.gameCount == self.episodes + 20:
                     self.timer.stop()
                     print("QLearner learned " + str(len(Agent1.q_values)) + " states")
                     print("Explored = " + str(Agent1.random))

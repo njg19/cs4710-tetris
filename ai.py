@@ -32,10 +32,10 @@ class Tetris_AI_1(object):
             answer = max(q2, answer)
         return answer
     
-    def nextMove(self, gameCount):
+    def nextMove(self, gameCount, episodes):
         # Epsilon greedy
         strategies, q_strategy = self.getPossibleStrategies()
-        if random.random() < 1 - self.epsilon or gameCount > 125:
+        if random.random() < 1 - self.epsilon or gameCount > episodes:
             self.qCount += 1
             return q_strategy
         else:
