@@ -58,7 +58,7 @@ class Tetris(QMainWindow):
         # Universal
         self.start()
         self.center()
-        self.setWindowTitle('Multiplayer Tetris')
+        self.setWindowTitle('Multiplayer Tetris - Trains for 125 games then first to 20 wins')
         self.show()
         self.setFixedSize(2*(self.tboard.width() + self.sidePanel.width()),
                           self.sidePanel.height() + self.statusbar.height())
@@ -99,7 +99,7 @@ class Tetris(QMainWindow):
         if event.timerId() == self.timer.timerId():
             # Player 1
             if Agent1 and not self.nextMove:
-                self.nextMove = Agent1.nextMove()
+                self.nextMove = Agent1.nextMove(self.gameCount)
                 self.curState = np.array(BOARD_DATA.getData()).reshape((BOARD_DATA.height, BOARD_DATA.width))
             if self.nextMove:
                 k = 0
@@ -121,12 +121,12 @@ class Tetris(QMainWindow):
                     self.sabotagedLines = 0
                 reward += (self.sabotagedLines * 2) + lines
             if not check:
-                self.p2wins += 1
                 self.gameCount += 1
-                print("GAME " + str(self.gameCount) + ": P1 - " + str(self.p1wins) + " vs " "P2 - " + str(self.p2wins))
+                self.p2wins += 1
+                print("GAME " + str(self.gameCount - 125) + ": P1 - " + str(self.p1wins) + " vs " "P2 - " + str(self.p2wins))
                 self.start()
 
-                if self.gameCount == 100:
+                if self.gameCount == 145:
                     self.timer.stop()
                     print("QLearner learned " + str(len(Agent1.q_values)) + " states")
                     print("Explored = " + str(Agent1.random))
@@ -163,12 +163,12 @@ class Tetris(QMainWindow):
                     self.nextMove2 = None
                     self.lastShape2 = BOARD2_DATA.currentShape
             if not check:
-                self.p1wins += 1
                 self.gameCount += 1
-                print("GAME " + str(self.gameCount) + ": P1 - " + str(self.p1wins) + " vs " "P2 - " + str(self.p2wins))
+                self.p1wins += 1
+                print("GAME " + str(self.gameCount - 125) + ": P1 - " + str(self.p1wins) + " vs " "P2 - " + str(self.p2wins))
                 self.start()
 
-                if self.gameCount == 100:
+                if self.gameCount == 145:
                     self.timer.stop()
                     print("QLearner learned " + str(len(Agent1.q_values)) + " states")
                     print("Explored = " + str(Agent1.random))

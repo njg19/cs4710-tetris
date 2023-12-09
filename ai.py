@@ -1,23 +1,11 @@
-### Simple ai approach -> Same pieces separate strategy
-# simple ai simply picks score maximizing -> different scores like below
-# Agent1 will prioritize patience as defined by their score function
-    # Set up filling more lines at once
-# Agent2 will play more aggressive as defined by their score function
-    # If it can fill a line, do it
-
-### QLearners -> Separate pieces same strategy
-# All values in the board are converted to 1 and this represents state
-# Actions are meaningless, possible locations where the piece can go matter
-# Chance of taking score maximizing action (what the simple ai does), chance of taking random
-# 
-
 from tetris import BOARD_DATA, BOARD2_DATA, Shape
+
 import math
 from datetime import datetime
 import numpy as np
 import random
 
-# Agent 1
+# Agent 1 - Q Learner
 
 class Tetris_AI_1(object):
 
@@ -44,11 +32,10 @@ class Tetris_AI_1(object):
             answer = max(q2, answer)
         return answer
     
-    def nextMove(self):
+    def nextMove(self, gameCount):
         # Epsilon greedy
         strategies, q_strategy = self.getPossibleStrategies()
-        
-        if random.random() < 1 - self.epsilon:
+        if random.random() < 1 - self.epsilon or gameCount > 125:
             self.qCount += 1
             return q_strategy
         else:
