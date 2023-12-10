@@ -43,7 +43,6 @@ class Tetris_AI_1(object):
         else:
             self.random += 1
             return random.choice(strategies)
-        #return q_strategy
         
     def update(self, state, nextState, reward):
         state = self.cleanState(state)
