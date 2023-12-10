@@ -185,7 +185,7 @@ class Tetris_AI_1(object):
         maxDy = max(roofY) - min(roofY)
         x1 = [i for i in range(10)]
         model = np.poly1d(np.polyfit(x1, roofY, 2))
-        score = fullLines * 1.8 - vHoles * 1.0 - vBlocks * 0.5 - maxHeight ** 1.5 * 0.02 \
+        score = pow(fullLines, 1.6) + max(chains) * 0.8 - abs(model.c[0])*3 - max(roofY)*2 - vHoles * 1.0 - vBlocks * 0.5 - maxHeight ** 1.5 * 0.02 \
             - stdY * 0.0 - stdDY * 0.01 - absDy * 0.2 - maxDy * 0.3
         return score
     

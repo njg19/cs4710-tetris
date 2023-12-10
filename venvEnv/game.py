@@ -192,6 +192,9 @@ def drawSquare(painter, x, y, val, s):
     if val == 0:
         return
 
+    x = int(x)
+    y = int(y)
+    val = int(val)
     color = QColor(colorTable[val])
     painter.fillRect(x + 1, y + 1, s - 2, s - 2, color)
 
